@@ -4,7 +4,8 @@
 
 .PHONY: tokens tokens-check lint-design tests serve clean help \
         modelscope-dryrun modelscope-sync \
-        goldenset goldenset-dryrun results-html wheel
+        goldenset goldenset-dryrun results-html wheel \
+        i18n-export i18n-status
 
 PYTHON ?= python
 
@@ -16,6 +17,8 @@ help:
 	@echo "  make tokens-check   CI mode — verify on-disk outputs are in sync"
 	@echo "  make lint-design    Lint inline hex colors against the baseline"
 	@echo "  make tests          Full pytest sweep (except known-broken test_v1_1_scripts)"
+	@echo "  make i18n-export LANG=es_ES   Write translations/es_ES.csv for a translator"
+	@echo "  make i18n-status    Coverage per locale (fails under --min)"
 	@echo "  make serve          Boot scripts/serve_demo.py on :8770"
 	@echo "  make clean          Drop derived artefacts (__pycache__, .pytest_cache)"
 	@echo
@@ -33,6 +36,12 @@ tokens-check:
 
 lint-design:
 	$(PYTHON) scripts/lint_design_tokens.py
+
+i18n-export:
+	$(PYTHON) scripts/i18n_export.py --lang $(LANG) --out translations/$(LANG).csv
+
+i18n-status:
+	$(PYTHON) scripts/i18n_status.py
 
 tests:
 	$(PYTHON) -m pytest tests/ --ignore=tests/test_v1_1_scripts.py
