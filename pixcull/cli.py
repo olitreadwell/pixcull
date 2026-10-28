@@ -6,6 +6,8 @@ from typing import Optional
 
 import typer
 from rich.console import Console
+
+from pixcull.io.xmp import default_xmp_naming
 from rich.markup import escape
 from rich.table import Table
 
@@ -219,7 +221,7 @@ def export(
     out: Optional[Path] = typer.Option(
         None, "--out", "-o", help="CSV path (--format csv only)"),
     naming: str = typer.Option(
-        "lightroom", "--naming",
+        default_xmp_naming(), "--naming",
         help="Sidecar name: lightroom = <stem>.xmp (both editors read it) | "
              "darktable = <name>.<ext>.xmp, the form darktable writes. With "
              "darktable an existing sidecar is patched in place so its "
@@ -254,7 +256,7 @@ def export(
         console.print(f"[green]✓[/] {n} rows → {dest}")
         prov = _write_session_provenance(run_dir, dest.parent)
         if prov is not None:
-            console.print(f"[dim]  + {prov.name} — 这批判定是怎么来的[/dim]")
+            console.print(f"[dim]  + {prov.name} — how these decisions were made[/dim]")
         return
 
     target = target.strip().lower()
@@ -283,7 +285,7 @@ def export(
     prov = _write_session_provenance(
         run_dir, (run_dir / "xmp") if target == "collected" else run_dir)
     if prov is not None:
-        console.print(f"[dim]  + {prov.name} — 这批判定是怎么来的[/dim]")
+        console.print(f"[dim]  + {prov.name} — how these decisions were made[/dim]")
     if skipped:
         console.print(f"[yellow]{skipped} skipped[/] "
                       f"[dim](source image not reachable)[/dim]")

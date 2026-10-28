@@ -24,6 +24,7 @@ in-place — round-tripping arbitrary XMP would require a real parser.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 import re
 from xml.sax.saxutils import escape, unescape
@@ -42,13 +43,41 @@ _VALID_LABELS = frozenset({"", "Red", "Yellow", "Green", "Blue", "Purple"})
 PIXCULL_KEYWORD_PREFIX = "PixCull:"
 
 
-def read_xmp_keywords(image_path: Path) -> list[str]:
+def default_xmp_naming() -> str:
+    """Sidecar naming to use when the caller has no opinion.
+
+    ``PIXCULL_XMP_NAMING=darktable`` makes every caller — the CLI and the
+    web workspace export — write the sidecar darktable reads, without
+    repeating a flag on each run. Anything unrecognised falls back to
+    lightroom rather than raising, so a typo cannot break an export.
+    """
+    value = os.environ.get("PIXCULL_XMP_NAMING", "").strip().lower()
+    return value if value == "darktable" else "lightroom"
+
+
+def _sidecar_path(image_path: Path, naming: str = "lightroom") -> Path:
+    """The sidecar this naming scheme reads and writes.
+
+    ``lightroom`` uses ``<stem>.xmp``; ``darktable`` uses
+    ``<name>.<ext>.xmp``. Read and write must agree, or a preserve check
+    reads a file the writer never touches.
+    """
+    if naming == "darktable":
+        return Path(image_path).parent / (Path(image_path).name + ".xmp")
+    if naming != "lightroom":
+        raise ValueError(f"naming must be 'lightroom' or 'darktable', "
+                         f"got {naming!r}")
+    return Path(image_path).with_suffix(".xmp")
+
+
+def read_xmp_keywords(image_path: Path,
+                      naming: str = "lightroom") -> list[str]:
     """Keywords already in the sidecar, in file order.
 
     Returns [] when there is no sidecar or no `dc:subject` block. Used to
     make PixCull's write additive instead of destructive.
     """
-    sidecar = Path(image_path).with_suffix(".xmp")
+    sidecar = _sidecar_path(image_path, naming)
     if not sidecar.exists():
         return []
     try:
@@ -81,6 +110,37 @@ def _set_xmp_field(text: str, name: str, value: str) -> str:
         return text
     tag = head.group(0)
     return text.replace(tag, f'{tag} {name}="{escape(value)}"', 1)
+
+
+def _set_xmp_block(text: str, tag: str, container: str,
+                   values: list[str], wrap_lang: bool = False) -> str:
+    """Replace a multi-value block (``dc:subject``, ``dc:description``).
+
+    darktable writes these as ``<rdf:Bag>`` / ``<rdf:Alt>`` children of
+    ``rdf:Description``. A block that is already there is replaced whole,
+    so a second PixCull run cannot leave the previous verdict behind.
+    ``values`` empty means drop the block, matching the fresh-packet
+    writer, which emits none.
+    """
+    pattern = re.compile(
+        rf"\s*<{re.escape(tag)}>.*?</{re.escape(tag)}>", re.S)
+    body = ""
+    if values:
+        lines = []
+        for value in values:
+            attr = ' xml:lang="x-default"' if wrap_lang else ""
+            lines.append(f"     <rdf:li{attr}>{escape(value)}</rdf:li>")
+        body = (f"\n   <{tag}>\n    <{container}>\n"
+                + "\n".join(lines)
+                + f"\n    </{container}>\n   </{tag}>")
+    if pattern.search(text):
+        return pattern.sub(body, text, count=1)
+    if not body:
+        return text
+    close = text.find("</rdf:Description>")
+    if close == -1:
+        return text
+    return text[:close] + body.lstrip("\n") + "\n  " + text[close:]
 
 
 def write_xmp(image_path: Path, rating: int, color_label: str = "",
@@ -137,11 +197,15 @@ def write_xmp(image_path: Path, rating: int, color_label: str = "",
     # `preserve_existing=False` restores the old behaviour for a caller
     # that genuinely wants PixCull's rating to win.
     if preserve_existing:
-        prior = read_xmp(Path(image_path))
-        prior_kw = read_xmp_keywords(Path(image_path))
-        if prior.get("rating"):
+        prior = read_xmp(Path(image_path), naming)
+        prior_kw = read_xmp_keywords(Path(image_path), naming)
+        # A rating that arrived with PixCull's own keyword came from an
+        # earlier PixCull run, not from the photographer. Let a re-run
+        # replace it; otherwise a shoot is stuck on its first verdict.
+        owned = any(k.startswith(PIXCULL_KEYWORD_PREFIX) for k in prior_kw)
+        if prior.get("rating") and not (owned and keywords is not None):
             rating = int(prior["rating"])
-        if prior.get("color_label"):
+        if prior.get("color_label") and not (owned and keywords is not None):
             color_label = str(prior["color_label"])
         if prior_kw:
             # PixCull's OWN keywords are replaced, not accumulated: a
@@ -236,6 +300,12 @@ def write_xmp(image_path: Path, rating: int, color_label: str = "",
                 text = _set_xmp_field(text, "xmp:Rating", str(rating))
                 if color_label:
                     text = _set_xmp_field(text, "xmp:Label", color_label)
+                text = _set_xmp_block(text, "dc:subject", "rdf:Bag",
+                                      keywords or [])
+                if description:
+                    text = _set_xmp_block(
+                        text, "dc:description", "rdf:Alt", [description],
+                        wrap_lang=True)
                 sidecar.write_text(text, encoding="utf-8")
                 return sidecar
         sidecar.write_text(body, encoding="utf-8")
@@ -333,7 +403,7 @@ def read_develop_settings(image_path: Path) -> dict:
     return out
 
 
-def read_xmp(image_path: Path) -> dict:
+def read_xmp(image_path: Path, naming: str = "lightroom") -> dict:
     """Read existing XMP sidecar → ``{"rating": int, "color_label": str}``.
 
     Returns ``{"rating": 0, "color_label": ""}`` if the sidecar doesn't
@@ -344,7 +414,7 @@ def read_xmp(image_path: Path) -> dict:
     """
     import re  # local — read path is rarely hit
 
-    sidecar = image_path.with_suffix(".xmp")
+    sidecar = _sidecar_path(image_path, naming)
     out = {"rating": 0, "color_label": "", "source": ""}
     if not sidecar.exists():
         return out

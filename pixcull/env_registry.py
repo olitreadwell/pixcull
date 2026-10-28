@@ -55,6 +55,7 @@ KNOWN: dict[str, str] = {
     "PIXCULL_INLINE_ROWS":          "how many rows the first paint inlines",
     "PIXCULL_KEYWORD_PREFIX":       "prefix for IPTC keywords written back",
     "PIXCULL_LIBRARY_DIR":          "cross-run library index location",
+    "PIXCULL_XMP_NAMING":           "sidecar name the CLI and web export write: lightroom = <stem>.xmp | darktable = <name>.<ext>.xmp (patched in place, keeps develop history)",
     "PIXCULL_LANG":                 "page language for the server-rendered pages (en_US / zh_CN / a supported locale)",
     "PIXCULL_LICENSE_API":          "licence server base URL",
     "PIXCULL_LICENSE_KEY":          "licence key for issuing scripts",

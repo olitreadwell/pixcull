@@ -333,6 +333,7 @@ PixCull 读取下面这些环境变量,**只有这些**。设了别的名字,程
 | `PIXCULL_INLINE_ROWS` | how many rows the first paint inlines |
 | `PIXCULL_KEYWORD_PREFIX` | prefix for IPTC keywords written back |
 | `PIXCULL_LIBRARY_DIR` | cross-run library index location |
+| `PIXCULL_XMP_NAMING` | sidecar name the CLI and the web export write: `lightroom` = `<stem>.xmp` | `darktable` = `<name>.<ext>.xmp`, patched in place so its develop history survives |
 | `PIXCULL_LANG` | page language for the server-rendered pages (`en_US`, `zh_CN`, or another supported locale) |
 | `PIXCULL_LICENSE_API` | licence server base URL |
 | `PIXCULL_LICENSE_KEY` | licence key for issuing scripts |

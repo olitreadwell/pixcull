@@ -11564,12 +11564,12 @@ class _Handler(BaseHTTPRequestHandler):
         # Read optional body for target mode
         clen = int(self.headers.get("Content-Length", "0") or "0")
         target_mode = "tmp"
-        naming = "lightroom"
+        naming = default_xmp_naming()
         if clen > 0:
             try:
                 params = json.loads(self.rfile.read(clen).decode("utf-8") or "{}")
                 target_mode = params.get("target", "tmp")
-                naming = params.get("naming", "lightroom")
+                naming = params.get("naming") or default_xmp_naming()
             except (UnicodeDecodeError, json.JSONDecodeError) as exc:
                 _dbg("export/parse_body", exc)
         if naming not in ("lightroom", "darktable"):
@@ -11608,6 +11608,7 @@ class _Handler(BaseHTTPRequestHandler):
 
         from pixcull.io.xmp import (
             write_xmp, decision_to_xmp, build_iptc_fields_from_row,
+            default_xmp_naming,
         )
 
         output_dir = Path(run["output_dir"])
