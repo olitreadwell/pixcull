@@ -14,7 +14,8 @@ import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
 from pixcull.i18n import SUPPORTED_LOCALES
 from pixcull.i18n_kit import coverage
@@ -32,7 +33,7 @@ def main(argv: list[str] | None = None) -> int:
     for lang in SUPPORTED_LOCALES:
         if lang in ("zh_CN", "en_US"):
             continue
-        pages = coverage(lang)
+        pages = coverage(lang, ROOT)
         done = sum(v["done"] for v in pages.values())
         total = sum(v["total"] for v in pages.values())
         percent = (100 * done / total) if total else 0

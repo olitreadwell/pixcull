@@ -13,7 +13,8 @@ import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
 from pixcull.i18n import SUPPORTED_LOCALES, _normalize_lang
 from pixcull.i18n_kit import load_entries, write_csv
@@ -32,7 +33,7 @@ def main(argv: list[str] | None = None) -> int:
         parser.error(f"unsupported locale {args.lang!r}; "
                      f"add it to SUPPORTED_LOCALES first")
     out = args.out or Path("translations") / f"{lang}.csv"
-    entries = load_entries(lang)
+    entries = load_entries(lang, ROOT)
     count = write_csv(entries, out)
     todo = sum(1 for entry in entries if entry.status == "todo")
     print(f"{out}: {count} strings, {count - todo} translated, {todo} todo")

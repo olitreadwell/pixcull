@@ -44,7 +44,10 @@ class Entry:
 
 
 def _repo_root(root: Path | None = None) -> Path:
-    return Path(root) if root is not None else Path(__file__).resolve().parents[1]
+    """Where the catalogues live. Defaults to the working directory, so
+    the module never builds a path that climbs out of an installed
+    package; the scripts pass the checkout root explicitly."""
+    return Path(root) if root is not None else Path.cwd()
 
 
 def _string_id(page: str, zh: str) -> str:
