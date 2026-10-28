@@ -13,7 +13,8 @@ import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
 from pixcull.i18n import _normalize_lang
 from pixcull.i18n_kit import (
@@ -31,7 +32,7 @@ def main(argv: list[str] | None = None) -> int:
 
     lang = _normalize_lang(args.lang)
     rows = read_csv(args.csv)
-    entries = load_entries(lang)
+    entries = load_entries(lang, ROOT)
     problems = validate_rows(rows, entries)
     if problems:
         print("\n".join(problems), file=sys.stderr)
