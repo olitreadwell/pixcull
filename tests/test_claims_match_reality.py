@@ -298,3 +298,75 @@ def test_turning_the_judge_on_without_authority_says_so():
     assert 'vlm_mode != "off" and vlm_authority == "off"' in src, (
         "nothing detects the judge-on/authority-off combination")
     assert "Advisory only" in src, "the combination is not reported"
+
+
+# ---------------------------------------------------------------------------
+# v3.100 — the README disagreed with itself about the authority default
+# ---------------------------------------------------------------------------
+
+#: How the documents state the default, in either language. History is
+#: written in the past tense ("shipped", "之间它是") and is not matched.
+_DEFAULT_STATEMENTS = [
+    re.compile(r"(?:vlm_authority`?|[Aa]uthority)[^.\n]{0,60}?\bships `(\w+)`"),
+    re.compile(r"(?:vlm_authority`?|[Aa]uthority)[^.\n]{0,60}?\bdefaults? (?:is|to) `(\w+)`"),
+    re.compile(r"(?:vlm_authority`?|权限)[^。\n]{0,30}?出厂(?:值改)?为 `(\w+)`"),
+    re.compile(r"(?:vlm_authority`?|权限)[^。\n]{0,30}?默认值?(?:是|为) `(\w+)`"),
+]
+
+
+def _stated_defaults(text: str) -> list[str]:
+    return [m.group(1) for pat in _DEFAULT_STATEMENTS for m in pat.finditer(text)]
+
+
+def test_every_statement_of_the_authority_default_names_the_shipped_one():
+    """v3.100. README.md said `primary` in one paragraph and, eighty lines
+    on, "Authority is a separate switch, and it ships `off`" — a v2.58
+    sentence that v2.64's change back to `primary` never reached. The
+    ModelScope card carried the same pair in Chinese."""
+    shipped = shipped_vlm_authority()
+    for rel in ("README.md", "modelscope/README.md", "README-PYPI.md", "docs/USER-GUIDE.md"):
+        found = _stated_defaults((REPO / rel).read_text("utf-8"))
+        wrong = [v for v in found if v != shipped]
+        assert not wrong, f"{rel} states the authority default as {wrong}; it ships {shipped!r}"
+        if rel in ("README.md", "modelscope/README.md"):
+            assert found, f"{rel} no longer states the authority default; this gate reads nothing"
+
+
+def test_the_flag_help_names_the_shipped_default():
+    shipped = shipped_vlm_authority()
+    tree = ast.parse((REPO / "pixcull" / "cli.py").read_text("utf-8"))
+    helps = [kw.value for node in ast.walk(tree) if isinstance(node, ast.Call)
+             and node.args and isinstance(node.args[0], ast.Constant)
+             and any(isinstance(a, ast.Constant) and a.value == "--vlm-authority"
+                     for a in node.args)
+             for kw in node.keywords if kw.arg == "help"]
+    assert helps, "the --vlm-authority option has no help text to check"
+    text = "".join(str(getattr(h, "value", "")) for h in ast.walk(helps[0])
+                   if isinstance(h, ast.Constant))
+    assert f"'{shipped}' (default)" in text, text
+
+
+def test_the_statement_patterns_read_what_was_there():
+    """The sentences that disagreed, so the patterns cannot rot quietly."""
+    assert _stated_defaults("**Authority is a separate switch, and it ships `off`.**") == ["off"]
+    assert _stated_defaults("**权限是另一个开关,出厂为 `off`。**") == ["off"]
+    assert _stated_defaults("**`vlm_authority` 出厂值改为 `primary`。**") == ["primary"]
+    assert _stated_defaults("From v2.58 to v2.64 it shipped `off`, after a pass") == []
+    assert _stated_defaults("v2.58 到 v2.64 之间它是 `off`,起因是") == []
+
+
+
+def test_no_document_says_the_rubric_was_calibrated_on_human_labels():
+    """v3.100. README and CONTRIBUTING said the rubric was "calibrated
+    against thousands of human labels". The per-axis rescorer's training
+    rows are mostly the rule stack's own verdicts mapped to stars
+    (scripts/ingest_scan_to_axis_training.py), and v2.88 found the 608-row
+    "correction" set was the model's own output too."""
+    pats = [re.compile(r"[Cc]alibrated\s+against\s+[^.]*?human\s+labels"),
+            re.compile(r"[数几]千条人工标注")]
+    for rel in ("README.md", "modelscope/README.md", "README-PYPI.md",
+                "CONTRIBUTING.md", "docs/USER-GUIDE.md"):
+        text = (REPO / rel).read_text("utf-8")
+        text = re.sub(r"\n## (?:What's new|最近更新)\n[\s\S]*?(?=\n## )", "\n", text)
+        hits = [m.group(0) for p in pats for m in p.finditer(text)]
+        assert not hits, f"{rel}: {hits}"

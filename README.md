@@ -91,6 +91,23 @@ https://github.com/user-attachments/assets/69eddc6b-24d3-406a-ace5-2ed3a5b44e67
 
 ## What's new
 
+**v3.100** — The README contradicted itself about how much the vision judge
+may change. One paragraph said `vlm_authority` ships `primary`, which is what
+the code does; eighty lines on, another said `off`, a sentence from v2.58 that
+v2.64's change back to `primary` never reached. The ModelScope card carried the
+same pair in Chinese. Both now say `primary`, and a test reads every statement
+of that default, in either language, against the code. The same README counted
+its tests three ways, 614, 1,200+ and 240+, none of them near the real number;
+a public document no longer states it, and a test keeps it out. And
+`CONTRIBUTING.md` sent contributors to the server's location before v2.31,
+said the results page had no build step, and called the rubric calibrated
+against thousands of human labels. It is current now, and a test checks every
+path it gives and every name it places in a file. The review found the same
+defect elsewhere: the README named nine verticals where the code has ten,
+four of them not verticals at all, counted the command palette's groups, and
+still called the rubric calibrated on human labels. Each is corrected and
+read against the code.
+
 **v3.99.1** — A taste profile's threshold shift is now measured against what
 the machine keeps of the same photographs, not against a fixed 65%. v3.98
 found that the 65% pushed a photographer stricter than the machine toward
@@ -185,18 +202,6 @@ why, and prints the spread across folds beside the mean;
 under redrawn folds. The two documents that quoted 0.801 now say what it
 was computed over.
 
-**v3.95** — The check that refuses to measure accuracy against the model's own
-output could not read the labels it exists to accept. `pixcull m3 label` saves
-a blind pass as one JSON object holding a map of verdicts, and the audit read
-one record per line, so it found nothing in that file and returned an empty
-inventory, which reads the same as "audited, nothing wrong". Run on the owner's
-two blind passes from September, it counted 0 labels; it counts 158 human labels
-now, and a pass that does not say a person made it is still not counted as
-human. A file that contributes nothing is listed with the reason. Nothing in
-the product calls the audit yet: the next four versions measure what those
-labels unblocked (what the excluded labels did to the personalisation numbers,
-whether the profile generalises across shoots), and they are what it is for.
-
 Earlier releases are in [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Why PixCull
@@ -252,10 +257,12 @@ PixCull is the alternative that flips all three:
 
 1. **6-axis rubric scoring.** Technical, subject, composition, light,
    moment, aesthetic. Each axis: 1–5 stars with rationale.
-   Calibrated against thousands of human labels; per-axis rescorer
-   trained on the same data.
-2. **Per-genre verticals.** Wedding, wildlife, sports, landscape,
-   portrait, event, journalism, commercial, still-life. Naming a
+   Each axis has its own rescorer, trained mostly on the rule stack's
+   own verdicts turned into stars
+   (`scripts/ingest_scan_to_axis_training.py`), not on per-axis human
+   labels.
+2. **Per-genre verticals.** Landscape, wildlife, birds, wedding,
+   travel, cosplay, kids, pets, events, sports. Naming a
    vertical shifts the keep/maybe thresholds and tolerates the flags
    that genre forgives — wildlife stops culling a tiny subject,
    landscape stops culling a long exposure for softness.
@@ -341,7 +348,7 @@ PixCull is the alternative that flips all three:
 | Photos leave your disk | **No** | Yes (upload required) | No, but vendor-locked |
 | Scoring rationale | **6-axis stars + canon citations** | Single 0..1 score | "Best of this group" |
 | Workflow integration | **XMP sidecars + Lr plugin + iOS + tether** | Web app only | Lightroom only |
-| Per-genre tuning | **9 verticals + extensible** | One model | Hidden |
+| Per-genre tuning | **10 verticals + extensible** | One model | Hidden |
 | Open source | **MIT** | Closed | Closed, subscription |
 | Active learning | **Built-in** | Closed re-train cycle | None visible |
 | Face library across runs | **Yes (V22.2)** | Per-batch | Per-catalog |
@@ -473,8 +480,9 @@ error rate on the one action that cannot be undone. `primary` cuts that
 to 15, finds one fewer cull, and asks for 195 second looks. Macro-F1
 +14.6 points, 95% CI [+6.8, +23.1].
 
-**`vlm_authority` now ships `primary`.** The judge itself is still off
-until you enable it; what changed is what it may do once on.
+**`vlm_authority` now ships `primary`.** Whether the judge runs at all is
+decided from your machine (see *What a default run actually does* below);
+this is what it may do once it runs.
 
 Two blind passes established what `maybe` means, because the metric had
 been guessing: on frames the photographer kept, 58 of 60 `maybe`s were
@@ -554,20 +562,20 @@ So a key plus one recorded consent is enough for photos to leave the
 machine on every subsequent run. `pixcull m3 consent --revoke` undoes
 it; `--vlm-mode off` overrides per run.
 
-**Authority is a separate switch, and it ships `off`.** Even when the
-judge runs, it scores and explains while decisions stay with the rule
-stack. Letting it act takes a second, explicit flag:
+**Authority is a separate switch, and it ships `primary`:** when the judge
+runs, it may overrule the rule stack either way. Two settings give it less:
 
 ```bash
-pixcull run shoot/ --vlm-mode minimax --vlm-authority rescue   # may overturn a hard cull
-pixcull run shoot/ --vlm-mode minimax --vlm-authority primary  # may overrule either way
+pixcull run shoot/ --vlm-mode minimax --vlm-authority rescue   # may only overturn a hard cull
+pixcull run shoot/ --vlm-mode minimax --vlm-authority off      # scores and explains; the rule stack decides
 ```
 
-`primary` was the shipped default until v2.58. The blind pass is why it
-is not: 1 of 10, interval spanning zero. Turning a model on should not
-silently hand it authority the measurement does not support.
+From v2.58 to v2.64 it shipped `off`, after a 150-frame blind pass in which
+the judge found 1 of the photographer's 10 culls, an interval spanning
+zero. The 394 blind frames above are why it is `primary` again: the rule
+stack deletes 126 keepers there, `primary` 15.
 
-Two things that fall out of the same data, both uncomfortable:
+Two things fall out of that 150-frame pass, both uncomfortable:
 
 * **The detector flags do not predict this photographer's culls.**
   Against a 6.7% baseline: `no_clear_subject` 6.0% (0.9x — worse than
@@ -747,7 +755,7 @@ an existing folder in place (zero-copy, RAW + DNG friendly).
 
 ### Cmd+K command palette (v0.9-P0-4)
 
-![Cmd+K palette — fuzzy-matched action list with 27 commands across 7 groups](docs/screenshots/02-cmdk-palette.png)
+![Cmd+K palette — a fuzzy-matched action list, grouped as filter, sort and so on](docs/screenshots/02-cmdk-palette.png)
 
 Linear/Raycast pattern.  ⌘K opens the palette anywhere; fuzzy match
 across 27 actions surfaced in < 50 ms.  Recent-used at top.
@@ -860,7 +868,7 @@ it asks the decision now (v3.76).
 | `/results/<run>` Inspector mobile | At ≤640px the Inspector becomes a pull-up bottom sheet (LR Mobile-Library style). | v0.7-P1-2 |
 | `/results/<run>` 1:1 zoom | Click any photo to zoom to 100%; drag to pan; wheel to fine-tune. Loupe RGB readout follows the cursor. | v0.7-P1-1 |
 | `/results/<run>` A/B compare | Pin any 2 photos via ⇆ button; synced 1:1 zoom + pixel readout across both cells. | v0.7-P0-1 |
-| `/results/<run>` ⌘K command palette | Linear/Raycast-style keyboard-first action entry. 27 actions across 7 groups, fuzzy match, recent-used. | **v0.9-P0-4** |
+| `/results/<run>` ⌘K command palette | Linear/Raycast-style keyboard-first action entry. 27 actions grouped as filter, sort, language, actions, export and navigation, plus your view presets and buckets once there are any; fuzzy match, recent-used. | **v0.9-P0-4** |
 | `/results/<run>` hold-Space | Press & hold Space for ~350ms surfaces a context-aware shortcut cheat-sheet (macOS Finder pattern). | v0.6 (5/5) |
 | `/results/<run>?event=<token>` | LAN collaboration: second-shooter / editor opens this URL, polls host every 5s for annotation changes, shows conflict markers. | v0.8-P0-2 |
 | `/share/<run>/<token>` | Token-gated client delivery page; only keeps surfaced; photographer brand + client watermark; share-URL modal with QR. | v0.7-P1-4 + v0.8-P1-3 |
@@ -1031,7 +1039,7 @@ out:
   no NAT traversal — runs entirely inside the same WiFi.
 
 > **Design quality, honest:** the engineering layer is mature
-> (614 tests passing, 7 charters shipped, 57 slices); the visual
+> (every change goes through a test suite CI runs on each push); the visual
 > design layer is still "developer + AI" rather than
 > "designer-curated".  We name this gap openly and have drafted a
 > concrete uplift plan in
@@ -1065,10 +1073,10 @@ pixcull/
 ├── mobile/PixCullCompanion/    # SwiftUI iOS app (Swift Package)
 ├── lr_plugin/PixCull.lrplugin/ # Lightroom plugin (Lua)
 ├── app/                        # PyInstaller spec for the .app bundle
-├── tests/                      # pytest suite (1,200+ tests across 88 files)
+├── tests/                      # pytest suite (`pytest --collect-only -q` counts it)
 ├── models/                     # where `scripts/train_*.py` writes; shadows the packaged copy
 ├── training.csv                # sanitized rubric ground truth (130 rows)
-├── training_axis.csv           # sanitized per-axis ground truth (3,000 rows)
+├── training_axis.csv           # per-axis training rows, mostly the rule stack's verdicts as stars
 ├── ROADMAP.md                  # the next ~12 months of work
 └── pyproject.toml              # MIT, Python 3.11–3.13
 ```
@@ -1207,11 +1215,18 @@ PixCull 把这三件事全部翻过来:
 ## 现在就能用的能力
 
 1. **6 维评分细则。** 技术 / 主体 / 构图 / 光线 / 瞬间 / 美感,每维 1-5
-   星,带理由。用数千条人工标注校准,每维都有独立的 rescorer 模型。
-2. **9 种细分领域 (verticals)。** 婚礼 · 野生 · 体育 · 风光 · 人像 ·
-   活动 · 新闻 · 商业 · 静物。每种领域调整 keep/maybe 阈值并按品味重
-   加权 (比如野生奖励瞬间维度的清晰度,即使构图不那么稳;婚礼奖励表
-   情,即使光线一般)。
+   星,带理由。每维都有独立的 rescorer 模型,主要用规则栈自己的判定换算
+   成星级来训练(`scripts/ingest_scan_to_axis_training.py`),不是逐维的
+   人工标注。
+2. **10 种细分领域 (verticals)。** 风光 · 野生动物 · 拍鸟 · 婚纱 ·
+   旅拍写真 · cosplay · 儿童 · 宠物 · 活动 · 运动。选定一种领域会调整
+   keep/maybe 阈值,并放过这类拍摄本来就容忍的 flag —— 野生动物不再因为
+   主体太小而删,风光不再因为长曝光发软而删。
+
+   各维的加权是另一回事,来自你自己的纠正,而不是领域:纠正够多之后,你
+   在乎的维度权重会更高。每种领域也带一份人工整理的初始权重
+   (`PIXCULL_VERTICAL_AXIS_PRIOR=1`),一旦你的纠正多到可以学习,就由它们
+   取代。
 3. **V20 建议信封。** 每张照片附带:简短 verdict、引用摄影正典的
    strengths 列表 (Adams Zone System、决定性瞬间、三分法 等等)、
    weaknesses 列表、具体可执行的 suggestions 列表。
@@ -1270,7 +1285,7 @@ PixCull 把这三件事全部翻过来:
 | 照片要不要离开本机 | **可以完全不离开**:`--vlm-mode off` 全程不出网;默认送 MiniMax M3 判图,不进训练池 | 多为云端处理;各家的留存与训练策略以其自身条款为准 |
 | 评分理由 | **6 维评分 + 摄影正典引用 + 逐张文字点评** | 各家不同,对外多为一个总分或一个分级 |
 | 工作流融入度 | **XMP sidecar + Lr 插件 + iOS App + tether 模式** | 多数以自己的 Web App 为主入口;宿主插件请查各家文档 |
-| 按拍摄类型调权 | **9 种 vertical,可扩展** | 是否分垂类、如何分,各家未必公开 |
+| 按拍摄类型调整 | **10 种 vertical,可扩展** | 是否分垂类、如何分,各家未必公开 |
 | 授权 | **MIT,代码全部可读** | 商业产品为主,授权条款以各家为准 |
 | 从纠正中学习 | **本机档案 + 出处门槛(见 `personalized.py`)** | 多数有个性化功能,训练细节通常不公开 |
 | 跨 run 人脸库 | **支持(V22.2)** | 是否跨批次,请查各家文档 |
@@ -1308,7 +1323,7 @@ keep 104 · maybe 1 · cull 95 · 178 个连拍组。所有截图都是这一个
 
 ### Cmd+K 命令面板(v0.9-P0-4)
 
-![Cmd+K · 27 个 action 跨 7 个 group · fuzzy match](docs/screenshots/02-cmdk-palette.png)
+![Cmd+K · 按筛选、排序等分组的操作列表 · fuzzy match](docs/screenshots/02-cmdk-palette.png)
 
 ### 客户分享作品集(v0.9-P0-5)
 
@@ -1602,8 +1617,8 @@ flowchart LR
 - **LAN 同步本地优先** —— token + 5 秒 HTTP polling + mDNS 自动发现。
   无 WebSocket,无云端 signalling,无 NAT 穿透 —— 全在同一个 WiFi 内
 
-> **设计质感坦白:** 工程层已经成熟(614 个测试通过、7 个 charter
-> 落地、57 个 slice),但**视觉设计层仍是"开发者 + AI"而非"设计师
+> **设计质感坦白:** 工程层已经成熟(每次改动都要过一套 CI 在每次推送时
+> 运行的测试),但**视觉设计层仍是"开发者 + AI"而非"设计师
 > 介入"**。这是我们公开承认的差距。详见
 > **[docs/DESIGN-SYSTEM-ROADMAP.md](docs/DESIGN-SYSTEM-ROADMAP.md)** ——
 > 包含工具链选型(Figma + Penpot + Tokens Studio + Rive)、自定义插
@@ -1633,9 +1648,9 @@ pixcull/
 ├── mobile/PixCullCompanion/    # SwiftUI iOS App (Swift Package)
 ├── lr_plugin/PixCull.lrplugin/ # Lightroom 插件 (Lua)
 ├── app/                        # PyInstaller 打包配置
-├── tests/                      # pytest 测试套 (240+ 用例)
+├── tests/                      # pytest 测试套(数量用 `pytest --collect-only -q` 看)
 ├── training.csv                # 脱敏后的 rubric ground truth (130 行)
-├── training_axis.csv           # 脱敏后的 per-axis ground truth (3,000 行)
+├── training_axis.csv           # 每维训练数据,多数是规则栈判定换算的星级
 ├── ROADMAP.md                  # 未来 12 个月规划
 └── pyproject.toml              # MIT,Python 3.11–3.13
 ```

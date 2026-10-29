@@ -925,7 +925,13 @@ Held out a shoot at a time and applied whole it agrees with the owner on
 74.3% against 67.4% with none, and 47 of those 50 photographs are the one
 event shoot.  The
 owner kept their profile (−0.080, fitted against 65%); runs and
-`personalize show` say so.  v3.100 is next.
+`personalize show` say so.  **v3.100:** the README stated the authority
+default as `primary` and, eighty lines on, `off` (a v2.58 sentence); every
+statement of it is now read against `decide()` in both languages, and no
+public document states a test count (`tests/test_documents_count_nothing_by_hand.py`,
+which also checks CONTRIBUTING's paths and "`NAME` in `path`" pointers,
+the verticals' count and names against `verticals.py`, and the palette's
+action count against `26-cmdk-palette.js`).  v3.101 is next.
 
 **Earlier block: `docs/ROADMAP-v3.1-v3.27-charter.md`** — twenty-seven versions read
 out of the same 46-entry competitive research at the level of PixCull's own core

@@ -1106,6 +1106,77 @@ moved.
 **Measure:** each number generated or gated, both languages. A count
 written by hand is wrong by the next release.
 
+**Shipped, 2026-10-29.** The code was right and agreed with itself: the
+`pixcull run` flag, `run_pipeline` and `decide()` all default to `primary`,
+and `tests/test_claims_match_reality.py` already held the three together. The
+documents were what disagreed. README.md said "`vlm_authority` now ships
+`primary`" and, in *What a default run actually does*, "Authority is a
+separate switch, and it ships `off`", with the v2.58 reasoning beside it:
+written when v2.58 lowered the default, and not reached when v2.64 raised it
+again on 394 blind frames. The ModelScope card had the same pair in Chinese
+(出厂值改为 `primary` / 出厂为 `off`). The second paragraph now states
+`primary`, shows the two settings that give the judge less, and keeps the
+history as history. The sentence "the judge itself is still off until you
+enable it" went too: the section below it says a bare run with a key and
+recorded consent judges and uploads. `test_claims_match_reality.py` now reads
+every statement of the authority default in README.md, the ModelScope card,
+README-PYPI.md and the user guide against `decide()`'s signature, in both
+languages, requires the two READMEs to state it at all, and checks that the
+flag's help names the default it has.
+
+The counts: "614 tests passing, 7 charters shipped, 57 slices" in both halves
+of README.md (a v0.10 figure), "1,200+ tests across 88 files" in the English
+repository tree and "240+ 用例" in the Chinese one, and "240+ tests, ~60 s"
+in `CONTRIBUTING.md`. A full local run before they came out collected 3,356
+tests from 261 of the 262 test files then in `tests/`, and takes minutes. None is replaced with a number:
+`tests/test_documents_count_nothing_by_hand.py` fails on a suite total in any
+public document, in either language, and checks its patterns against the
+sentences that were there.
+
+`CONTRIBUTING.md` was staler than the charter said. Besides the count and
+`scripts/serve_demo.py` (a forwarder since v2.31), it placed `_CULL_REASONS`
+in that forwarder, said the results page's JavaScript had no build step
+(`results.html` is built from `templates/src/` since v2.5 and a test fails on
+a hand edit), told translators to extend `I18N_*` maps (the strings are in
+`pixcull/locale/`), said the rubric is "calibrated against thousands of human
+labels" (v2.88 found the 608-row set was the model's own output), and asked
+for ASCII-only code in a package where 71 modules carry Chinese strings and
+34 an emoji. Each is corrected, and the new test checks every repository path
+the guide names and every "`NAME` in `path`" it gives.
+
+**What the review found.** Swept for the same defect, the public documents
+held more. The README named nine verticals in both halves, "wedding,
+wildlife, sports, landscape, portrait, event, journalism, commercial,
+still-life", and the ModelScope card the same nine in Chinese; the code has
+ten (`pixcull/verticals.py`), and portrait, journalism, commercial and
+still-life are not among them. Both comparison tables said 9. The Chinese
+feature entry still said each vertical re-weights the axes "to taste", the
+claim v3.37 corrected in the English half only. The README said the rubric
+was "calibrated against thousands of human labels" in both languages, the
+sentence this version had just removed from `CONTRIBUTING.md`; the per-axis
+rescorer's rows are mostly the rule stack's verdicts as stars
+(`scripts/ingest_scan_to_axis_training.py`). The command palette was "27
+actions across 7 groups": 27 is right, and there are six groups until the
+user has made view presets or buckets. A training file was "3,000 rows" of
+"ground truth". Each is corrected. The verticals' count and names, the
+palette's action count, and the calibration claim are now read against the
+code, What's new excepted since it retells old sentences on purpose; a
+group count is not written at all. Two holes in this version's own gate
+were found too: the "`NAME` in `path`" pattern missed the second pair
+because CONTRIBUTING wraps "-style" onto its own line, and the path check
+passed on a guide that named no path. Both are closed.
+
+The review also found `docs/USER-GUIDE.md` teaching the attribution heatmap
+removed in v3.78, which is v3.101.
+
+Sixteen mutations each turn a test red: README or the card stating `off`
+again, two of the old test counts put back (the patterns' own test holds the
+other three), the name back in the forwarder, a path that does not exist,
+the flag defaulting to `off`, help text that stops naming its default; then
+nine verticals in a table, the card's old list, the old English names, a
+group count, a wrong action count, the calibration claim in either
+language, and a name placed in the wrong file across a line break.
+
 ### v3.101 — the user guide teaches a feature removed in v3.78
 
 `docs/USER-GUIDE.md` lists `A` for the attribution heatmap and has a

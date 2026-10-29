@@ -61,6 +61,9 @@ GATES: list[tuple[str, str]] = [
     # list this file shipped with an hour earlier.
     ("tests/test_claims_match_reality.py",
      "the README's numbers are the ones the product produces"),
+    # v3.100 — the README counted its tests three ways, none true.
+    ("tests/test_documents_count_nothing_by_hand.py",
+     "no public document counts tests by hand; CONTRIBUTING's paths exist"),
     ("tests/test_comparative_claims_are_sourced.py",
      "every comparison against another tool cites something"),
     ("tests/test_docs_resolve_missing_modules.py",
