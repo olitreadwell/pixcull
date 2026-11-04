@@ -1,3 +1,5 @@
+Read `CODING_STANDARDS.md` and `AGENTS.md` before changing behaviour.
+
 # PixCull — working agreement for Claude
 
 Local-first AI photo-(and now video-)culling tool for professional
