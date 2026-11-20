@@ -16,7 +16,7 @@
       + "#lbVideoBar .vbc{display:flex;gap:8px;align-items:center;margin-bottom:5px}"
       + "#lbVideoBar button{background:#1d1d1d;border:1px solid #242424;color:#e8e8ea;"
       + "border-radius:7px;padding:4px 11px;font-size:13px;cursor:pointer}"
-      + "#lbVideoBar button.on{background:#d5b584;border-color:#d5b584;color:#fff}"
+      + "#lbVideoBar button.on{background:#d5b584;border-color:#d5b584;color:#161616}"
       + "#lbVideoBar .vbr{margin-left:auto;color:#9aa0aa;font:11px ui-monospace,monospace}"
       + "#lbVideoBar .vba{margin-top:4px;color:#9aa0aa;font-size:11px;line-height:1.4}"
       + "#vbTl{width:100%;height:54px;display:block;cursor:pointer;touch-action:none}";

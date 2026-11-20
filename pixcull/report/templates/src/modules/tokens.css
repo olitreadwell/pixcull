@@ -101,6 +101,12 @@
          of a token and nowhere else, which is the whole point. */
       --accent-mid:   #b5945f;
       --accent-deep:  #93743f;
+      /* v3.104 — what is drawn ON an accent fill. Every primary button
+         and active pill wrote white here, which is 1.95:1 on champagne:
+         the default theme's main call to action failed contrast by more
+         than half. Dark on champagne is 9.3:1; the light theme's accent
+         is deep bronze, where white is right (7.5:1). */
+      --on-accent:    #161616;
       --accent-soft:  oklch(from var(--accent) l c h / 0.16);
       --accent-glow:  oklch(from var(--accent) l c h / 0.40);
       --focus-ring:   oklch(from var(--accent) calc(l + 0.064) c h / 0.55);
@@ -362,6 +368,7 @@
          white paper now reads bronze. */
       --accent-mid:   #4d3401;              /* L 0.345 */
       --accent-deep:  #2b1c00;              /* L 0.238 */
+      --on-accent:    #ffffff;              /* text on bronze, 7.5:1 */
       --contrast: oklch(0.205 0 0);         /* near-black    #171717 */
 
       /* —— SURFACES: derived from --base (v2.21 neutral) ————————— */

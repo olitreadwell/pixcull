@@ -1395,6 +1395,64 @@ fallback on any `:root` property (parsed by brace depth, so a property set
 only on one selector keeps its live fallback) and on CSS written from script
 going uncounted. Four mutations each turn it red.
 
+**One visible change, shown to the owner as a before/after sheet first.**
+Reading the literals meant reading what they sit on, and the default
+theme's main call to action failed contrast: every primary button and
+active pill drew white on the accent, which is champagne in the dark theme,
+1.95:1. The light theme's accent is bronze, where white is right, and the
+one rule with dark text (the burst-stack badge) was 2.42:1 there. One colour
+cannot serve both, so `--on-accent` is a token: `#161616` dark, white light,
+in `tokens.css`, `design-system/tokens.json` and the role map the browser
+lane checks. Fifteen rules use it, as do the two dark-only pages. Six
+surfaces on the review page are champagne in both themes (the bookmark tag
+and bookmark star, the compare tray, the lightbox video bar's active button,
+the rubric intro's start button, the active-learning "AL #N" badge), so
+their text is a fixed `#161616`, as the lightbox toggles' already was. The
+pages the server writes carry their own token CSS (`_DESIGN_TOKENS_CSS`),
+with its own light theme. It defines `--on-accent` too now, and the eleven
+page templates under `templates/pages/` use it wherever text sits on
+`--accent`: the upload page's main button (1.74:1 before), its review
+button, the admin page's running pill, the tether, verticals and bulk
+pages' primary buttons, and the library page's go button, whose dark text
+was 2.42:1 on the light theme's bronze. Their brand gradient, unlike the
+results page's, is champagne in both themes, so text on it is a fixed
+`#161616`: the shared primary-button rule, the client page's comment
+button (which named an `--on-accent` that, defined now, would have turned
+white in the light theme), the history page's demo button, the video run's
+call to action, and the upload page's floating pill.
+
+`tests/test_text_on_accent_is_legible.py` walks the stylesheet in a browser,
+takes every rule that paints an accent-family background and sets a text
+colour, and measures it in both themes: 4.5:1 against the fill's mean
+(where a centred label sits) and 3:1 at any gradient stop. On the results
+page and the two dark-only pages as they were, it finds 22 failures, the
+lowest 1.77:1, and on the eleven page templates 7 more, the lowest 1.74:1;
+now none, the lowest 6.18:1. The 3:1 at a stop is a real allowance: on the
+champagne-to-bronze gradient, dark text is 6.36:1 at the middle and 4.15:1
+at the bronze corner (white was 2.84:1 at the middle and 1.95:1 at the
+champagne corner).
+
+Two rounds of review found what a stylesheet walk of one page cannot
+reach. The "AL #N" badge is a style JavaScript builds as a string, and the
+server's pages are not the results page. The browser test now also renders
+each page template the way the server serves it and measures it in both
+themes. `tests/test_no_white_text_on_the_accent.py` reads every
+declaration block, `style=` attribute and `cssText` string in the
+templates, their scripts and `pixcull/**/*.py`, with string concatenation
+joined so a split attribute reads whole, and fails on white text on an
+accent fill (in any spelling of white CSS accepts) or `--on-accent` on a
+fill that is champagne in both themes. It needs no browser. On the tree
+before v3.104 it reports 36; on the first cut of this fix 13; after the
+first review 9; now none. The first version of it read only the top-level
+templates and missed the eleven under `pages/`. Neither test sees a
+background and a text colour set in different rules.
+
+It also measured a second defect it does not fix: accent-coloured *text*
+on an accent *tint* in the light theme, thirteen rules at 4.11 to 4.48:1.
+That is a change to the text colour, visible in its own right, so the
+thirteen are a ratchet in the same test: a fourteenth fails, and fixing one
+without taking it off the list fails too.
+
 ### v3.105 — the ledger, and the competitive refresh that did not run
 
 Close the OPEN-ITEMS rows that are closed in the code (three skip-ledger

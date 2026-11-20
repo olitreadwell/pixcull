@@ -804,6 +804,10 @@ _DESIGN_TOKENS_CSS = r"""
     --accent-soft:  rgba(213,181,132,0.15);
     --accent-glow:  rgba(213,181,132,0.42);
     --focus-ring:   rgba(234,202,152,0.55);
+    /* v3.104 — text on an accent fill: dark on champagne (white was
+       1.95:1), white on the light theme's bronze. Same token as the
+       results page's tokens.css. */
+    --on-accent:    #161616;
     /* semantic palette */
     --c-success:        #63bd7f;
     --c-success-tint:   rgba(99,189,127,0.14);
@@ -901,6 +905,7 @@ _DESIGN_TOKENS_CSS = r"""
     --accent-soft:  rgba(71,58,41,0.10);
     --accent-glow:  rgba(71,58,41,0.30);
     --focus-ring:   rgba(71,58,41,0.45);
+    --on-accent:    #ffffff;
     --shadow-sm: 0 1px 2px  rgba(0,0,0,0.07);
     --shadow-md: 0 4px 14px rgba(0,0,0,0.09);
     --shadow-lg: 0 14px 34px rgba(0,0,0,0.10);
@@ -920,7 +925,8 @@ _DESIGN_TOKENS_CSS = r"""
     header { background: var(--chrome) !important; }
   }
   /* v0.9-P0-3 — signature brand-wide gradient + CTA helper, available
-     on every page that uses _DESIGN_TOKENS_CSS (upload / admin / share).
+     on every page that uses _DESIGN_TOKENS_CSS (upload / admin / share /
+     history and the rest).
      Defined here so the token name + curve are project-wide single source. */
   :root {
     --brand-gradient:       linear-gradient(135deg, #d5b584 0%, #93743f 100%);
@@ -928,12 +934,15 @@ _DESIGN_TOKENS_CSS = r"""
                               rgba(213,181,132,0.18) 0%,
                               rgba(106,96,82,0.18) 100%);
   }
-  /* Primary CTA: signature gradient backdrop, white text, soft glow.
-     Hover lifts 1px + brightens; active settles. */
+  /* Primary CTA: signature gradient backdrop, dark text, soft glow.
+     Hover lifts 1px + brightens; active settles. v3.104 — the text was
+     white, 1.95:1 on the gradient's champagne end and 2.8:1 across it.
+     The gradient is champagne in both themes here, so the text is fixed
+     dark rather than --on-accent, which turns white on the light theme. */
   button.btn-primary,
   .btn-brand-gradient {
     background: var(--brand-gradient) !important;
-    color: #ffffff !important;
+    color: #161616 !important;
     border: 0 !important;
     box-shadow: 0 4px 14px rgba(213,181,132, 0.35);
     transition: filter 120ms var(--ease-out, ease-out),
@@ -7925,7 +7934,7 @@ class _Handler(BaseHTTPRequestHandler):
   }}
   .ph-comment-form button {{
     padding: 0 18px; font-size: 13px; font-weight: 600;
-    background: var(--brand-gradient); color: var(--on-accent, #161616);
+    background: var(--brand-gradient); color: #161616;
     border: 0; border-radius: 8px; cursor: pointer;
     box-shadow: 0 4px 14px var(--accent-glow);
     transition: filter 160ms var(--ease-out),
@@ -10123,7 +10132,7 @@ class _Handler(BaseHTTPRequestHandler):
               'style="padding:11px 22px;border-radius:999px;border:0;'
               'font-weight:600;font-size:13px;cursor:pointer;'
               'background:linear-gradient(135deg,#d5b584 0%,#93743f 100%);'
-              'color:#fff;box-shadow:0 4px 14px rgba(213,181,132,0.40)" '
+              'color:#161616;box-shadow:0 4px 14px rgba(213,181,132,0.40)" '
               'onclick="(async()=>{this.disabled=true;this.textContent=\'载入中…\';'
               'try{const r=await fetch(\'/sample_demo\',{method:\'POST\'});'
               'const d=await r.json();if(d.ok&&d.run_id){location.href=\'/results/\'+d.run_id;}'
@@ -10699,7 +10708,7 @@ class _Handler(BaseHTTPRequestHandler):
                 'text-decoration:none;padding:9px 13px;border-radius:22px;'
                 'font:12px system-ui">🗓 联合时间线</a>'
                 f'<a href="/video/{rid_safe}" title="视频原生审片 · 时间线 scrubber" '
-                'style="background:#d5b584;color:#fff;text-decoration:none;'
+                'style="background:#d5b584;color:#161616;text-decoration:none;'
                 'padding:10px 16px;border-radius:22px;font:13px system-ui;'
                 'box-shadow:0 4px 16px rgba(213,181,132,.5)">🎬 视频审片 →</a></div>'
             )

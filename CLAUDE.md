@@ -952,6 +952,12 @@ video shots (it was the second, ungated way into the same footage).
 on `:root` properties (removed; computed paint unchanged) and could not see
 CSS written from script (it reads live script now); undesigned 64 → 63.
 Don't add a colour fallback to a `:root` token; it can never paint.
+Text on an accent fill is `var(--on-accent)` (dark on champagne, white on
+bronze), never white. The server's `_DESIGN_TOKENS_CSS` defines it too.
+On a fill that is champagne in both themes (a literal, or the server
+pages' brand gradient) text is a fixed `#161616`. A browser test measures
+the results page and every `templates/pages/` page in both themes; a
+static test reads JS-built styles and the server's pages.
 v3.105 is next.
 
 **Earlier block: `docs/ROADMAP-v3.1-v3.27-charter.md`** — twenty-seven versions read

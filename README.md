@@ -102,6 +102,16 @@ reads live script now. The undesigned count moved from 64 to 63, for a set
 that is now the right one. The video review and timeline pages use their own
 colour variables where they had repeated the values.
 
+One change you can see: text on the gold accent. Every primary button and
+active pill drew white text on champagne, 1.95:1 in the default dark theme,
+under half of what WCAG asks, on the review page and on every page the
+server writes; the upload page's main button was 1.74:1. It is dark now
+(9.3:1 on a flat fill) and stays white on the light theme's bronze (7.5:1),
+through a new `--on-accent` token. A browser test measures every
+stylesheet rule that puts text on the accent, on the review page and all
+eleven page templates, in both themes; a second test reads the styles that
+JavaScript and the server write as text.
+
 **v3.103** — The caption under the transcript screenshot said the faces in
 the demo footage are frosted. v3.87 had measured that frosting and found a
 frame where the detector's boxes landed on the subject's coat and her face

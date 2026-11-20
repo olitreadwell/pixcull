@@ -5,7 +5,7 @@
 <style>
 :root{--bg:#161616;--panel:rgba(29,29,29,0.74);--panel-solid:#1d1d1d;--surface-2:#242424;
 --line:#262626;--ink:#e6e6e6;--dim:#9b9b9b;--accent:#d5b584;
---accent-hi:#eaca98;--accent-deep:#93743f;--keep:#63bd7f;--cull:#e0604e;
+--accent-hi:#eaca98;--accent-deep:#93743f;--keep:#63bd7f;--cull:#e0604e;--on-accent:#161616;
 --radius:13px;--ease:cubic-bezier(0.34,1.56,0.64,1);
 --serif:"Charter","Iowan Old Style","PT Serif",Georgia,"Songti SC",serif}
 *{box-sizing:border-box}
@@ -54,7 +54,7 @@ border-radius:10px;padding:8px 13px;font-size:13px;cursor:pointer;min-width:42px
 transition:transform .18s var(--ease),border-color .18s,background .18s}
 .transport button:hover{border-color:var(--accent);transform:translateY(-1px)}
 .transport button:active{transform:translateY(0) scale(.96)}
-.transport button.on{background:var(--accent);border-color:var(--accent);color:#fff;
+.transport button.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent);
 box-shadow:0 4px 16px rgba(213,181,132,.4)}
 .transport .spacer{flex:1}
 .transport .count{color:var(--dim);font-variant-numeric:tabular-nums}
@@ -78,7 +78,7 @@ border:1px solid var(--line);border-radius:9px}
 .cand:hover{background:#171717}
 .cand.active{background:var(--surface-2);box-shadow:inset 3px 0 0 var(--accent)}
 .cand .row1{display:flex;align-items:center;gap:8px}
-.cand .rank{background:var(--accent);color:#fff;border-radius:6px;
+.cand .rank{background:var(--accent);color:var(--on-accent);border-radius:6px;
 padding:1px 7px;font-size:11px;font-weight:600}
 .cand .span{color:var(--dim);font-variant-numeric:tabular-nums;font-size:12px}
 .cand .sc{margin-left:auto;font-weight:600;font-variant-numeric:tabular-nums}

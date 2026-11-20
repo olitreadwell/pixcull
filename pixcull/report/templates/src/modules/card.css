@@ -72,7 +72,7 @@
       display: inline-flex; align-items: center; gap: 3px;
       padding: 2px 8px; border-radius: 4px; cursor: pointer;
       font-size: 11px; font-weight: 600; line-height: 1.4;
-      color: #161616; background: linear-gradient(180deg, var(--accent-hi), var(--accent));
+      color: var(--on-accent); background: linear-gradient(180deg, var(--accent-hi), var(--accent));
       border: 1px solid rgba(22,22,22, 0.25);
       box-shadow: 2px 2px 0 -1px var(--accent), 4px 4px 0 -2px var(--accent-deep),
                   0 2px 6px rgba(0, 0, 0, 0.35);
@@ -533,7 +533,7 @@
       background: var(--brand-gradient,
         linear-gradient(135deg, var(--accent), var(--accent-deep)));
       border-color: transparent;
-      color: #ffffff;
+      color: var(--on-accent);
       transform: translateY(-1px) scale(1.06);
       filter: brightness(1.05);
     }

@@ -34,7 +34,7 @@
       background: var(--brand-gradient,
         linear-gradient(135deg, var(--accent), var(--accent-deep)));
       border: 0;
-      color: #ffffff;
+      color: var(--on-accent);
     }
     .modal-destructive .btn-primary,
     .modal-destructive button[type="submit"] {
@@ -45,7 +45,7 @@
     .modal-destructive .btn-secondary,
     .modal-destructive button.secondary {
       background: var(--accent) !important;
-      color: #ffffff !important;
+      color: var(--on-accent) !important;
       /* reverse-pair: cancel becomes the visually-primary button so
          the user has to deliberately click the red one to confirm */
     }
@@ -152,7 +152,7 @@
       content: "A";
       position: absolute; top: 6px; right: 50%;
       transform: translateX(50%);
-      background: var(--accent); color: #fff;
+      background: var(--accent); color: var(--on-accent);
       padding: 2px 8px; border-radius: 10px;
       font-size: 10px; font-weight: 700;
       letter-spacing: 0.05em;
@@ -170,7 +170,7 @@
       align-items: center; gap: 12px;
       padding: 8px 14px 8px 16px;
       background: rgba(213,181,132,0.95);
-      color: #fff;
+      color: #161616;
       border-radius: 999px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5),
                   0 0 0 1px rgba(255,255,255,0.15);

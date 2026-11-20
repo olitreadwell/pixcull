@@ -62,6 +62,7 @@ ROLE = {
     "color.border.hi": "--border-hi",
     "color.accent.default": "--accent",
     "color.accent.hi": "--accent-hi",
+    "color.accent.on": "--on-accent",
     "color.semantic.success": "--c-success",
     "color.semantic.warn": "--c-warn",
     "color.semantic.danger": "--c-danger",

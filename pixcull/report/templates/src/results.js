@@ -2516,7 +2516,7 @@
           activeLearningBadge =
             `<div style="position:absolute;top:6px;left:6px;
              background:linear-gradient(90deg,#d5b584,#d5b584);
-             color:#fff;padding:2px 8px;border-radius:3px;
+             color:#161616;padding:2px 8px;border-radius:3px;
              font-size:10px;font-weight:600;z-index:5;
              box-shadow:0 1px 4px rgba(0,0,0,0.4)"
              title="${esc(al.why || '')}">AL #${al.rank}</div>`;

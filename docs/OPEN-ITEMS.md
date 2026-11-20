@@ -546,11 +546,25 @@ do.** 51 `var(--x, colour)` fallbacks sat on `:root` properties, which every
 element inherits, so none could paint; twelve counted as undesigned. They
 are removed, with computed paint compared before and after. And CSS written
 as text from JavaScript was invisible to the scanner: 31 literals in
-`results.html`. It reads live script now. Undesigned 63, unmigrated 33.
-What is left of the 33 is not mechanical: some match a token only by
-coincidence on a surface that does not follow the theme, and the 20 in
+`results.html`. It reads live script now. Undesigned 63, unmigrated 33,
+then 38: the same version's contrast fix wrote dark text as `#161616` on
+six surfaces that are champagne in both themes, and `#161616` is a token
+value (one older `#161616`, on the burst badge, became the token, so the
+net is five). What is left of the 38 is not mechanical: some match a token only
+by coincidence on a surface that does not follow the theme, and the 24 in
 script sit in the lightbox and modals, whose surfaces need reading first.
 Held by `tests/test_every_colour_that_paints_is_counted.py`.
+
+**Open from v3.104: accent text on an accent tint, light theme.** Thirteen
+rules draw `--accent`-family text on a 10–16% accent tint at 4.11–4.48:1,
+just under WCAG's 4.5. Fixing it means a darker text step in the light
+theme, a visible change, so it waits for a decision. Listed, and held from
+growing, in `tests/test_text_on_accent_is_legible.py`.
+
+Related, and also a visible change: the champagne-to-bronze brand gradient
+puts dark text at 6.36:1 in the middle, where labels sit, but 4.15:1 at the
+bronze corner. The contrast test holds text to the fill's mean and allows
+3:1 at a stop; a gradient whose dark end stays above 4.5:1 would close it.
 
 ---
 

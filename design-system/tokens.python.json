@@ -2,6 +2,7 @@
   "_themes.light": {
     "color.accent.default": "#6c501f",
     "color.accent.hi": "#866939",
+    "color.accent.on": "#ffffff",
     "color.border.default": "#e2e2e2",
     "color.border.hi": "#c9c9c9",
     "color.brand.champagne": "#6c501f",
@@ -31,6 +32,7 @@
   "color.accent.focus-ring": "rgba(234,202,152,0.55)",
   "color.accent.glow": "rgba(213,181,132,0.40)",
   "color.accent.hi": "#eaca98",
+  "color.accent.on": "#161616",
   "color.accent.soft": "rgba(213,181,132,0.16)",
   "color.border.default": "#262626",
   "color.border.hi": "#363636",

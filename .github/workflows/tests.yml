@@ -165,7 +165,8 @@ jobs:
             tests/test_lightbox_stability.py \
             tests/test_client_present.py \
             tests/test_readme_images_render.py \
-            tests/test_design_system_matches_the_product.py
+            tests/test_design_system_matches_the_product.py \
+            tests/test_text_on_accent_is_legible.py
 
       - name: Prove the browser actually launched
         # The whole point of this job. Before this version the three

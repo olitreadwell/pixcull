@@ -34,7 +34,10 @@ BROWSER_TESTS = ("tests/test_visual_smoke.py",
                  # found fifteen of sixteen role tokens holding a palette
                  # the product replaced, and no hermetic check could have:
                  # the values are computed with relative oklch().
-                 "tests/test_design_system_matches_the_product.py")
+                 "tests/test_design_system_matches_the_product.py",
+                 # v3.104 — measures text on the accent in both themes;
+                 # white on champagne was 1.95:1 on every primary button.
+                 "tests/test_text_on_accent_is_legible.py")
 
 
 def _workflow() -> dict:

@@ -18,6 +18,7 @@ public enum BrandTokens {
   public static let color_accent_focus_ring: String = "rgba(234,202,152,0.55)"
   public static let color_accent_glow: String = "rgba(213,181,132,0.40)"
   public static let color_accent_hi: String = "#eaca98"
+  public static let color_accent_on: String = "#161616"
   public static let color_accent_soft: String = "rgba(213,181,132,0.16)"
   public static let color_border_default: String = "#262626"
   public static let color_border_hi: String = "#363636"
@@ -126,6 +127,7 @@ public enum BrandTokens {
   public enum Light {
     public static let color_accent_default: String = "#6c501f"
     public static let color_accent_hi: String = "#866939"
+    public static let color_accent_on: String = "#ffffff"
     public static let color_border_default: String = "#e2e2e2"
     public static let color_border_hi: String = "#c9c9c9"
     public static let color_brand_champagne: String = "#6c501f"
