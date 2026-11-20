@@ -4,7 +4,7 @@
 <title>PixCull · 照片 + 视频时间线</title>
 <style>
 :root{--bg:#161616;--panel:#1d1d1d;--line:#262626;--ink:#e6e6e6;
---dim:#9b9b9b;--accent:#d5b584;--accent-hi:#eaca98;--accent-deep:#93743f;}
+--dim:#9b9b9b;--accent:#d5b584;--accent-hi:#eaca98;--accent-deep:#93743f;--keep:#63bd7f;}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);
 font:13px/1.5 system-ui,-apple-system,sans-serif}
@@ -21,8 +21,8 @@ flex-shrink:0;font-size:12px;padding-top:4px}
 .body{flex:1;min-width:0}
 .photos{display:flex;flex-wrap:wrap;gap:5px}
 .photos img{width:78px;height:58px;object-fit:cover;border-radius:5px;
-background:#1d1d1d;border:1px solid var(--line)}
-.photos img.keep{border-color:#63bd7f}.photos img.cull{opacity:.4}
+background:var(--panel);border:1px solid var(--line)}
+.photos img.keep{border-color:var(--keep)}.photos img.cull{opacity:.4}
 .vcard{display:flex;align-items:center;gap:14px;background:#1a1a1a;
 border:1px solid var(--accent);border-radius:12px;padding:12px 16px}
 .vcard .ic{font-size:26px}

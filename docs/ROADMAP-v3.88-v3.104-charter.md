@@ -1350,8 +1350,50 @@ turn the file red.
 
 ### v3.104 — thirty-nine colours written as literals where a token exists
 
-Mechanical. Not ratcheted, blocks nothing, and has been "still open"
-since v3.71.
+Planned as mechanical: replace the 39 literals the linter called
+*unmigrated* with the `var()` each one repeats. Reading them one at a time
+first showed the count was wrong in both directions, and that is what this
+version fixes.
+
+**Counted, never painted.** Fifteen of the 39 were the fallback half of a
+`var(--x, #…)`, and the whole stylesheet carried 51 colour fallbacks of that
+shape. Every one sat on a property declared in `:root`, which every element
+inherits in both themes; a `var()` fallback is used only when the property
+is undefined, so none of them could reach the screen. Twelve were colours in
+no design token (a blue, an emerald, a red from the purple-era palette) and
+formed part of the ratcheted *undesigned* number. All 51 are removed. The
+computed paint of 2,082 elements and pseudo-elements on `results.html`,
+compared in both themes before and after, did not change in one value.
+
+**Painted, never counted.** The linter read stylesheets, `style="…"`
+attributes and paint attributes. `results.html` also writes CSS as text from
+JavaScript (the lightbox video bar's whole stylesheet is a string) and builds
+`style='…` attributes across concatenated lines that never close on one line.
+31 literals painted that way, eleven undesigned. The scanner now reads live
+script, with comments excluded, as a fourth kind.
+
+The two errors nearly cancelled, −12 and +11, which is why the figure looked
+stable while it described the wrong set: *undesigned* 64 → 63, *unmigrated*
+39 → 33.
+
+`video_review.html` and `timeline.html` repeated their own palette as
+literals; they use their own variables now (`--panel-solid`, `--keep`,
+`--cull`, `--bg`, `--dim`, and a `--surface-2` the video page lacked).
+SVG attributes take `var()` in Chromium, which the page already relied on;
+the video page was rendered with fixture data and its 139 elements, 30 of
+them SVG, compared before and after: no difference.
+
+What remains *unmigrated* is mostly not mechanical. Dark text on the amber
+*maybe* badge and on the lightbox's fixed-champagne toggles matches a token
+by coincidence (`#171717` is the light theme's text colour), and replacing it
+would make it follow a theme the surface does not follow. The 20 colours in
+script are in the lightbox and modals, which need their surface read before
+their colour is chosen.
+
+`tests/test_every_colour_that_paints_is_counted.py` fails on a colour
+fallback on any `:root` property (parsed by brace depth, so a property set
+only on one selector keeps its live fallback) and on CSS written from script
+going uncounted. Four mutations each turn it red.
 
 ### v3.105 — the ledger, and the competitive refresh that did not run
 

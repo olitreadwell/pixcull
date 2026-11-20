@@ -344,9 +344,9 @@
        ──────────────────────────────────────────────────────────── */
     .ai-num {
       background: linear-gradient(135deg,
-                  var(--accent, #d5b584) 0%,
-                  var(--accent-mid, #b5945f) 50%,
-                  var(--accent-deep,   #93743f) 100%);
+                  var(--accent) 0%,
+                  var(--accent-mid) 50%,
+                  var(--accent-deep) 100%);
       -webkit-background-clip: text;
               background-clip: text;
       -webkit-text-fill-color: transparent;

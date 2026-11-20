@@ -157,6 +157,8 @@ which is the thing that was actually false.
 
 One line each, exactly as the release was titled at the time.
 
+**v3.99** — a taste profile per kind of shoot does not help, and the test for it measured memory
+
 **v3.98** — the taste profile does not generalise, and here it keeps what it should cull
 
 **v3.97** — the scene label did not hide the singletons; it made more of them

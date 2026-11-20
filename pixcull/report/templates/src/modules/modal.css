@@ -23,9 +23,9 @@
         linear-gradient(135deg, var(--accent), var(--accent-deep))) 1 0 0 0 !important;
       border-image-slice: 1 !important;
     }
-    .modal-detail     { border-top: 3px solid var(--accent, #d5b584) !important; }
+    .modal-detail     { border-top: 3px solid var(--accent) !important; }
     .modal-destructive {
-      border-top: 3px solid var(--c-danger, #ef4444) !important;
+      border-top: 3px solid var(--c-danger) !important;
     }
     /* Primary-button colour overrides per modal class.
        Targets .btn-primary inside the modal-action / -destructive. */
@@ -38,13 +38,13 @@
     }
     .modal-destructive .btn-primary,
     .modal-destructive button[type="submit"] {
-      background: var(--c-danger, #ef4444) !important;
+      background: var(--c-danger) !important;
       border: 0 !important;
       color: #ffffff !important;
     }
     .modal-destructive .btn-secondary,
     .modal-destructive button.secondary {
-      background: var(--accent, #d5b584) !important;
+      background: var(--accent) !important;
       color: #ffffff !important;
       /* reverse-pair: cancel becomes the visually-primary button so
          the user has to deliberately click the red one to confirm */
@@ -90,9 +90,9 @@
       border-color: var(--accent);
       background: var(--surface-3);
     }
-    .cflx-keep-local:hover  { border-color: var(--keep, #10b981); }
+    .cflx-keep-local:hover  { border-color: var(--keep); }
     .cflx-keep-remote:hover { border-color: var(--accent); }
-    .cflx-keep-both:hover   { border-color: var(--maybe, #d97706); }
+    .cflx-keep-both:hover   { border-color: var(--maybe); }
     .cflx-side {
       font-size: 9.5px; color: var(--muted);
       text-transform: uppercase; letter-spacing: 0.06em;

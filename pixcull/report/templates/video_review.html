@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PixCull · 视频审片</title>
 <style>
-:root{--bg:#161616;--panel:rgba(29,29,29,0.74);--panel-solid:#1d1d1d;
+:root{--bg:#161616;--panel:rgba(29,29,29,0.74);--panel-solid:#1d1d1d;--surface-2:#242424;
 --line:#262626;--ink:#e6e6e6;--dim:#9b9b9b;--accent:#d5b584;
 --accent-hi:#eaca98;--accent-deep:#93743f;--keep:#63bd7f;--cull:#e0604e;
 --radius:13px;--ease:cubic-bezier(0.34,1.56,0.64,1);
@@ -24,10 +24,10 @@ font-size:12px;border:1px solid var(--line);padding:5px 10px;border-radius:7px}
 header a:hover{border-color:var(--accent)}
 .gradewrap{margin-left:auto;color:var(--dim);font-size:12px;
 display:flex;align-items:center;gap:6px}
-.gradewrap select{background:#1d1d1d;color:var(--ink);
+.gradewrap select{background:var(--panel-solid);color:var(--ink);
 border:1px solid var(--line);border-radius:7px;padding:5px 8px;font-size:12px}
 .cand .thumb{width:100%;height:64px;object-fit:cover;border-radius:6px;
-margin-top:7px;background:#1d1d1d;border:1px solid var(--line)}
+margin-top:7px;background:var(--panel-solid);border:1px solid var(--line)}
 main{flex:1;display:flex;min-height:0}
 .stage{flex:1;display:flex;flex-direction:column;min-width:0}
 .viewer-wrap{flex:1;position:relative;display:flex;align-items:center;
@@ -40,7 +40,7 @@ padding:10px 12px;font-variant-numeric:tabular-nums;min-width:188px}
 .hud .fid{color:var(--dim);font-size:11px;margin-bottom:8px}
 .bar{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:11px}
 .bar .lbl{width:64px;color:var(--dim)}
-.bar .track{flex:1;height:6px;background:#242424;border-radius:4px;overflow:hidden}
+.bar .track{flex:1;height:6px;background:var(--surface-2);border-radius:4px;overflow:hidden}
 .bar .fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent-hi))}
 .bar .val{width:34px;text-align:right;color:var(--ink)}
 .badge{position:absolute;right:14px;top:12px;background:rgba(213,181,132,.16);
@@ -76,7 +76,7 @@ border:1px solid var(--line);border-radius:9px}
 .gpsmeta{color:var(--dim);font-size:11px;margin-top:6px;font-variant-numeric:tabular-nums}
 .cand{padding:10px 14px;border-bottom:1px solid var(--line);cursor:pointer}
 .cand:hover{background:#171717}
-.cand.active{background:#242424;box-shadow:inset 3px 0 0 var(--accent)}
+.cand.active{background:var(--surface-2);box-shadow:inset 3px 0 0 var(--accent)}
 .cand .row1{display:flex;align-items:center;gap:8px}
 .cand .rank{background:var(--accent);color:#fff;border-radius:6px;
 padding:1px 7px;font-size:11px;font-weight:600}
@@ -100,7 +100,7 @@ border-color:var(--cull);color:var(--cull)}
 .cand.culled{opacity:.5}
 footer{padding:7px 14px;border-top:1px solid var(--line);color:var(--dim);
 font-size:11px;background:var(--panel)}
-kbd{background:#1d1d1d;border:1px solid var(--line);border-radius:5px;
+kbd{background:var(--panel-solid);border:1px solid var(--line);border-radius:5px;
 padding:1px 6px;font-size:11px;color:var(--ink)}
 .err{padding:48px;text-align:center;color:var(--dim)}
 </style></head>
@@ -616,10 +616,10 @@ function drawGPS(){
   const p=g.points, p0=p[0], pN=p[p.length-1];
   let s='<path d="'+g.path+'" fill="none" stroke="var(--accent)" stroke-width="2" '
       +'stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>';
-  s+='<circle cx="'+p0.x+'" cy="'+p0.y+'" r="4" fill="#63bd7f"/>';
-  s+='<circle cx="'+pN.x+'" cy="'+pN.y+'" r="4" fill="#e0604e"/>';
+  s+='<circle cx="'+p0.x+'" cy="'+p0.y+'" r="4" fill="var(--keep)"/>';
+  s+='<circle cx="'+pN.x+'" cy="'+pN.y+'" r="4" fill="var(--cull)"/>';
   s+='<circle id="gpsdot" cx="'+p0.x+'" cy="'+p0.y+'" r="5.5" fill="var(--accent)" '
-      +'stroke="#161616" stroke-width="1.5"/>';
+      +'stroke="var(--bg)" stroke-width="1.5"/>';
   $('gpssvg').innerHTML=s;
   const km=(g.distance_km!=null && g.distance_km>0)?(g.distance_km.toFixed(2)+' km · '):'';
   $('gpsmeta').textContent=km+g.n+' 点'+(g.source?(' · '+g.source):'');
@@ -646,7 +646,7 @@ function drawTimeline(){
   // v2.19-P2 — audio-event bottom lane (laughter/applause/music). Same
   // deterministic glass-box philosophy: the shooter SEES what the audio
   // tagger heard, aligned to the frames it heard it under.
-  const AUD_STYLE={laughter:['#63bd7f','😄 笑声'],applause:['var(--accent)','👏 掌声'],music:['#9b9b9b','🎵 音乐']};
+  const AUD_STYLE={laughter:['var(--keep)','😄 笑声'],applause:['var(--accent)','👏 掌声'],music:['var(--dim)','🎵 音乐']};
   AUDIO.forEach(e=>{
     const st=AUD_STYLE[e.kind]; if(!st) return;
     const x1=tx(+e.start_s), x2=tx(+e.end_s);
@@ -657,7 +657,7 @@ function drawTimeline(){
        '</g>';
   });
   // baseline grid
-  for(let g=0;g<=4;g++){ const y=H-g/4*H; s+='<line x1="0" y1="'+y+'" x2="1000" y2="'+y+'" stroke="#242424" stroke-width="0.5"/>'; }
+  for(let g=0;g<=4;g++){ const y=H-g/4*H; s+='<line x1="0" y1="'+y+'" x2="1000" y2="'+y+'" stroke="var(--surface-2)" stroke-width="0.5"/>'; }
   // score_temporal area
   let area='0,'+H; let line='';
   FRAMES.forEach((f,i)=>{ const x=tx(f.t).toFixed(1), y=(H-(f.sT||0)*H).toFixed(1);

@@ -91,6 +91,17 @@ https://github.com/user-attachments/assets/69eddc6b-24d3-406a-ace5-2ed3a5b44e67
 
 ## What's new
 
+**v3.104** — The colour linter counted colours that never paint and missed
+colours that do. 51 fallbacks of the form `var(--x, #…)` sat on properties
+every element inherits, so none could ever reach the screen, yet twelve of
+them counted as undesigned colours. They are gone; the computed paint of
+every element on the review page, in both themes, is identical before and
+after. Meanwhile the review page writes some of its CSS as text from
+JavaScript, and 31 colours painted that way without being counted. The linter
+reads live script now. The undesigned count moved from 64 to 63, for a set
+that is now the right one. The video review and timeline pages use their own
+colour variables where they had repeated the values.
+
 **v3.103** — The caption under the transcript screenshot said the faces in
 the demo footage are frosted. v3.87 had measured that frosting and found a
 frame where the detector's boxes landed on the subject's coat and her face
@@ -156,27 +167,6 @@ verdicts on the same photographs a profile now gets no shift rather than the
 65% one. A profile written before this keeps applying as it was: the owner's
 own is unchanged, and `pixcull run` and `pixcull personalize show` say its
 shift was fitted against 65% and how to re-fit it.
-
-**v3.99** — Should a photographer who shoots portraits and landscapes keep one
-taste profile, or one for each? September's 158 blind labels, 79 of each,
-cannot say: each kind is a single shoot, so every test frame sits beside frames
-the profile learned from, and redrawn 200 ways the answer runs from −0.156 to
-+0.184. Of the 728 labels now on hand only portrait was shot more than once.
-Holding out one portrait shoot at a time, a portrait-only profile agrees with
-the owner on 63.8% of 378 photographs, against 75.1% for one profile learned
-from everything and 83.9% for none (78.0%, 79.9% and 83.9% if the two 2024
-shoots, three days apart, count as one). Against no profile it finds four more
-of the owner's culls and culls 34 photographs they kept, which is no better
-than picking at random. In the product's decision, applied the way a run
-applies a profile, it changes two verdicts in 728. Keyed by the scene label,
-which is how PixCull records a photograph's kind, it does worse, because the
-classifier filed 139 of the 378 portrait-shoot frames as landscape. So the
-per-kind profile stays unwired. Applied whole, with the axis weights v3.98 left
-out, the single profile does worse than v3.98 reported: cull recall 2.5%,
-against 7.7% with no profile. The function v3.8 shipped to answer this tested
-frames beside their own shoot and would have said yes (+0.072); it now holds
-out whole shoots and reports cull recall, and `readiness()` counts shoots as
-well as corrections.
 
 Earlier releases are in [`CHANGELOG.md`](CHANGELOG.md).
 

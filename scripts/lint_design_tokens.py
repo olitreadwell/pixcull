@@ -39,7 +39,8 @@ Rules
 A violation is:
   * A `#RRGGBB` or `#RGB` literal
   * Inside a CSS rule block (between `<style>` and `</style>` of
-    a *.html file, or anywhere in a *.css file)
+    a *.html file, or anywhere in a *.css file), an inline `style=`,
+    an SVG/HTML paint attribute, or live code inside `<script>`
 
 and it is `unmigrated` when its value is a design token,
 `undesigned` otherwise.
@@ -161,6 +162,95 @@ def _sanctioned() -> set[str]:
     return {h.lower() for h in SANCTIONED_HEX}
 
 
+_SCRIPT_OPEN = re.compile(r"<script\b([^>]*)>", re.I)
+#: The HTML tokenizer ends a script element at the first `</script`,
+#: string or not, so this matches it the same way: a literal "</script>"
+#: inside a JavaScript string ends the script for the browser too.
+_SCRIPT_CLOSE = re.compile(r"</script\b[^>]*>", re.I)
+_SCRIPT_TYPE = re.compile(r"""\btype\s*=\s*(["']?)([^"'\s>]*)\1""", re.I)
+#: `type=` values a browser executes. Anything else (`application/json`,
+#: `text/template`, …) is data: a colour in it is not painted by it.
+_JS_TYPES = {"", "module", "text/javascript", "application/javascript",
+             "text/ecmascript", "application/ecmascript"}
+
+
+def _is_code(attrs: str) -> bool:
+    m = _SCRIPT_TYPE.search(attrs)
+    return (m.group(2).lower() if m else "") in _JS_TYPES
+
+
+def _script_code(line: str, state: dict) -> list[bool]:
+    """Mark which characters of a body line are live JavaScript.
+
+    ``state`` carries across lines: ``script`` (None outside a script
+    element, ``"code"`` or ``"data"`` inside one), ``comment`` (inside
+    ``/* … */``) and ``quote`` (the open string delimiter; only a
+    template literal survives a line end). Comments are left out because a
+    colour named in one paints nothing, and this file explains its colours
+    in comments a lot. String contents are kept, because that is where CSS
+    written from script lives, and ``//`` inside a string is not a comment.
+
+    v3.104 review: the first cut found comments with a regex and a
+    one-character lookbehind, so ``"a //b #aabbcc"`` lost its colour, and it
+    treated ``<script type="application/json">`` as code.
+    """
+    keep = [False] * (len(line) + 1)
+    pos = 0
+    while pos < len(line):
+        if state["script"] is None:
+            m = _SCRIPT_OPEN.search(line, pos)
+            if not m:
+                break
+            state["script"] = "code" if _is_code(m.group(1)) else "data"
+            state["comment"], state["quote"] = False, None
+            pos = m.end()
+            continue
+        close = _SCRIPT_CLOSE.search(line, pos)
+        end = close.start() if close else len(line)
+        if state["script"] == "code":
+            i = pos
+            while i < end:
+                ch = line[i]
+                if state["comment"]:
+                    if line.startswith("*/", i):
+                        state["comment"] = False
+                        i += 2
+                    else:
+                        i += 1
+                    continue
+                if state["quote"]:
+                    keep[i] = True
+                    if ch == "\\" and i + 1 < end:
+                        keep[i + 1] = True
+                        i += 2
+                        continue
+                    if ch == state["quote"]:
+                        state["quote"] = None
+                    i += 1
+                    continue
+                if ch in "'\"`":
+                    state["quote"] = ch
+                    keep[i] = True
+                    i += 1
+                    continue
+                if line.startswith("/*", i):
+                    state["comment"] = True
+                    i += 2
+                    continue
+                if line.startswith("//", i):
+                    break                     # the rest of the line
+                keep[i] = True
+                i += 1
+        if not close:
+            break
+        state["script"], pos = None, close.end()
+    # A quoted or double-quoted string cannot cross a line end in
+    # JavaScript; a template literal can.
+    if state["quote"] in ("'", '"'):
+        state["quote"] = None
+    return keep
+
+
 def _scan(path: Path) -> list[tuple[int, str, str]]:
     """Return (lineno, hex_value, kind) for every paint literal.
 
@@ -172,6 +262,10 @@ def _scan(path: Path) -> list[tuple[int, str, str]]:
     ``inline``      a ``style="…"`` attribute in the body
     ``paint``       an SVG/HTML paint attribute, including ones built
                     inside JavaScript strings
+    ``script``      any other colour in live JavaScript (comments
+                    excluded): CSS written as a string, a ``style='…``
+                    attribute split over concatenated lines, a colour
+                    passed as an argument (v3.104)
 
     v3.71 — this used to look only inside ``<style>``, so it saw one of
     the three places a single-file HTML app paints. The consequence was
@@ -196,6 +290,7 @@ def _scan(path: Path) -> list[tuple[int, str, str]]:
     in_style = not is_html        # plain .css → always in-style
     in_block_comment = False
     in_symbol_block = 0           # nest depth (defensive)
+    js_state = {"script": None, "comment": False, "quote": None}
 
     style_open  = re.compile(r"<style\b", re.IGNORECASE)
     style_close = re.compile(r"</style>", re.IGNORECASE)
@@ -242,13 +337,29 @@ def _scan(path: Path) -> list[tuple[int, str, str]]:
         if body_part:
             # A stylesheet is not the only thing that paints, so look at
             # the two surfaces that also do.
+            claimed: set[int] = set()
             for m in _INLINE_STYLE.finditer(body_part):
                 for h in HEX_RE.finditer(m.group(2)):
+                    claimed.add(m.start(2) + h.start())
                     if h.group(0).lower() not in _sanctioned():
                         violations.append((i, h.group(0), "inline"))
             for m in _PAINT_ATTR.finditer(body_part):
+                claimed.add(m.start(2))
                 if m.group(2).lower() not in _sanctioned():
                     violations.append((i, m.group(2), "paint"))
+            # v3.104 — and the third: CSS that JavaScript writes as text.
+            # `"#lbVideoBar button.on{background:#d5b584;color:#fff}"` is
+            # a stylesheet rule that happens to live in a string, and a
+            # `style='…` attribute split across two concatenated lines
+            # never closes on one line, so neither pattern above sees it.
+            # 31 literals in results.html were painting unseen this way.
+            if is_html:
+                code = _script_code(body_part, js_state)
+                for h in HEX_RE.finditer(body_part):
+                    if (h.start() in claimed or not code[h.start()]
+                            or h.group(0).lower() in _sanctioned()):
+                        continue
+                    violations.append((i, h.group(0), "script"))
         if not css_part:
             continue
         # Multi-line CSS comments

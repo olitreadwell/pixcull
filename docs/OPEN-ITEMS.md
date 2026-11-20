@@ -541,6 +541,17 @@ Held by `tests/test_colour_names_are_true.py` — no colour token may be
 named for a hue its value is not in, the gate must consult the design
 system, and every template with a `<style>` block must be scanned.
 
+**v3.104 follow-up — counted colours that never paint, missed ones that
+do.** 51 `var(--x, colour)` fallbacks sat on `:root` properties, which every
+element inherits, so none could paint; twelve counted as undesigned. They
+are removed, with computed paint compared before and after. And CSS written
+as text from JavaScript was invisible to the scanner: 31 literals in
+`results.html`. It reads live script now. Undesigned 63, unmigrated 33.
+What is left of the 33 is not mechanical: some match a token only by
+coincidence on a surface that does not follow the theme, and the 20 in
+script sit in the lightbox and modals, whose surfaces need reading first.
+Held by `tests/test_every_colour_that_paints_is_counted.py`.
+
 ---
 
 ### 6. ~~What number the next release carries~~ — answered: 3.53.0

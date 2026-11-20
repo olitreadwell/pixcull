@@ -947,8 +947,12 @@ Chinese (results.html exempt); JS fallbacks must equal `zh_CN.json`.
 The block's last three moved to v3.103–v3.105.  **v3.103:** the README
 caption under 24 no longer vouches for the frosting, and
 `capture_transcript_edit.py` gates on `docs/demo-clip-frames.tsv` like the
-video shots (it was the second, ungated way into the same footage).  v3.104
-is next.
+video shots (it was the second, ungated way into the same footage).
+**v3.104:** the colour linter counted 51 dead `var(--x, colour)` fallbacks
+on `:root` properties (removed; computed paint unchanged) and could not see
+CSS written from script (it reads live script now); undesigned 64 → 63.
+Don't add a colour fallback to a `:root` token; it can never paint.
+v3.105 is next.
 
 **Earlier block: `docs/ROADMAP-v3.1-v3.27-charter.md`** — twenty-seven versions read
 out of the same 46-entry competitive research at the level of PixCull's own core
